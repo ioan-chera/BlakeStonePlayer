@@ -7,6 +7,25 @@
 static const char gWindowName[] = "DOSBox 0.74, Cpu speed: max 100% cycles, Frameskip  0, Program:   BS_AOG";
 //static const char gWindowName[] = "DOSBox";
 
+static void hitEnter()
+{
+   INPUT input[2];
+   memset(input, 0, sizeof(input));
+   input[0].type = input[1].type = INPUT_KEYBOARD;
+   input[0].ki.wVk = input[1].ki.wVk = VK_RETURN;
+   input[1].ki.dwFlags = KEYEVENTF_KEYUP;
+   if (!SendInput(1, input, sizeof(INPUT)))
+   {
+      fprintf(stderr, "SendInput failed %lu\n", GetLastError());
+   }
+   Sleep(100);
+   if (!SendInput(1, input + 1, sizeof(INPUT)))
+   {
+      fprintf(stderr, "SendInput 2 failed %lu\n", GetLastError());
+   }
+
+}
+
 int main()
 {
    // http://stackoverflow.com/a/7292773
@@ -14,6 +33,12 @@ int main()
    if (!wnd)
    {
       fprintf(stderr, "Window not found\n");
+      return EXIT_FAILURE;
+   }
+
+   if (!SetForegroundWindow(wnd))
+   {
+      fprintf(stderr, "Failed focusing, %lu\n", GetLastError());
       return EXIT_FAILURE;
    }
 
@@ -77,6 +102,21 @@ int main()
       }
    }
    printf("Mean color: %u %u %u\n", totr / width, totg / width, totb / width);
+
+   INPUT input;
+   memset(&input, 0, sizeof(input));
+   input.type = INPUT_KEYBOARD;
+   input.ki.wVk = VK_RETURN;
+
+   hitEnter();
+   Sleep(1000);
+   hitEnter();
+   Sleep(1000);
+   hitEnter();
+   Sleep(1000);
+   hitEnter();
+   Sleep(5000);
+   hitEnter();
    
 //   OpenClipboard(nullptr);
 //   EmptyClipboard();
